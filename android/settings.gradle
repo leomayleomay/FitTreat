@@ -1,0 +1,3 @@
+rootProject.name = 'FitTreat'
+
+include ':app'
