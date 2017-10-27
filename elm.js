@@ -6836,18 +6836,48 @@ var _ohanhi$elm_native_ui$Main$button = F3(
 				_1: {ctor: '[]'}
 			});
 	});
+var _ohanhi$elm_native_ui$Main$model = 0;
+var _ohanhi$elm_native_ui$Main$initHealthKit = _elm_lang$core$Native_Platform.outgoingPort(
+	'initHealthKit',
+	function (v) {
+		return null;
+	});
+var _ohanhi$elm_native_ui$Main$getActiveEnergyBurned = _elm_lang$core$Native_Platform.outgoingPort(
+	'getActiveEnergyBurned',
+	function (v) {
+		return null;
+	});
 var _ohanhi$elm_native_ui$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		if (_p0.ctor === 'Increment') {
-			return {ctor: '_Tuple2', _0: model + 1, _1: _elm_lang$core$Platform_Cmd$none};
-		} else {
-			return {ctor: '_Tuple2', _0: model - 1, _1: _elm_lang$core$Platform_Cmd$none};
+		switch (_p0.ctor) {
+			case 'InitHealthKit':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _ohanhi$elm_native_ui$Main$initHealthKit(
+						{ctor: '_Tuple0'})
+				};
+			case 'GetActiveEnergyBurned':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _ohanhi$elm_native_ui$Main$getActiveEnergyBurned(
+						{ctor: '_Tuple0'})
+				};
+			default:
+				return {ctor: '_Tuple2', _0: _p0._0, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
-var _ohanhi$elm_native_ui$Main$model = 9000;
-var _ohanhi$elm_native_ui$Main$Decrement = {ctor: 'Decrement'};
-var _ohanhi$elm_native_ui$Main$Increment = {ctor: 'Increment'};
+var _ohanhi$elm_native_ui$Main$activeEnergyBurned = _elm_lang$core$Native_Platform.incomingPort('activeEnergyBurned', _elm_lang$core$Json_Decode$int);
+var _ohanhi$elm_native_ui$Main$ActiveEnergyBurned = function (a) {
+	return {ctor: 'ActiveEnergyBurned', _0: a};
+};
+var _ohanhi$elm_native_ui$Main$subscriptions = function (model) {
+	return _ohanhi$elm_native_ui$Main$activeEnergyBurned(_ohanhi$elm_native_ui$Main$ActiveEnergyBurned);
+};
+var _ohanhi$elm_native_ui$Main$GetActiveEnergyBurned = {ctor: 'GetActiveEnergyBurned'};
+var _ohanhi$elm_native_ui$Main$InitHealthKit = {ctor: 'InitHealthKit'};
 var _ohanhi$elm_native_ui$Main$view = function (count) {
 	var imageSource = {
 		uri: 'https://raw.githubusercontent.com/futurice/spiceprogram/master/assets/img/logo/chilicorn_no_text-128.png',
@@ -6947,10 +6977,10 @@ var _ohanhi$elm_native_ui$Main$view = function (count) {
 						},
 						{
 							ctor: '::',
-							_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$Decrement, '#d33', '-'),
+							_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$InitHealthKit, '#33d', '?'),
 							_1: {
 								ctor: '::',
-								_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$Increment, '#3d3', '+'),
+								_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$GetActiveEnergyBurned, '#d5d', '/'),
 								_1: {ctor: '[]'}
 							}
 						}),
@@ -6961,12 +6991,15 @@ var _ohanhi$elm_native_ui$Main$view = function (count) {
 };
 var _ohanhi$elm_native_ui$Main$main = _ohanhi$elm_native_ui$NativeUi$program(
 	{
-		init: {ctor: '_Tuple2', _0: _ohanhi$elm_native_ui$Main$model, _1: _elm_lang$core$Platform_Cmd$none},
+		init: {
+			ctor: '_Tuple2',
+			_0: _ohanhi$elm_native_ui$Main$model,
+			_1: _ohanhi$elm_native_ui$Main$initHealthKit(
+				{ctor: '_Tuple0'})
+		},
 		view: _ohanhi$elm_native_ui$Main$view,
 		update: _ohanhi$elm_native_ui$Main$update,
-		subscriptions: function (_p1) {
-			return _elm_lang$core$Platform_Sub$none;
-		}
+		subscriptions: _ohanhi$elm_native_ui$Main$subscriptions
 	})();
 
 var Elm = {};
