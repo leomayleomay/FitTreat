@@ -1,22 +1,44 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import NativeUi as Ui exposing (Node)
 import NativeUi.Style as Style exposing (defaultTransform)
 import NativeUi.Elements as Elements exposing (..)
 import NativeUi.Events exposing (..)
 import NativeUi.Image as Image exposing (..)
+import Json.Decode as Decode exposing (..)
 
 
 -- MODEL
 
 
+type Error
+    = HealthDataUnavailable String
+    | HealthDataNotFound String
+
+
+type alias Response a =
+    { error : Maybe String
+    , value : a
+    }
+
+
+type StepCount
+    = StepCount Int
+
+
+type HealthData
+    = NotAsked
+    | Failure Error
+    | Success StepCount
+
+
 type alias Model =
-    Int
+    HealthData
 
 
 model : Model
 model =
-    9000
+    NotAsked
 
 
 
@@ -24,18 +46,60 @@ model =
 
 
 type Msg
-    = Increment
-    | Decrement
+    = DidRequestAccess Decode.Value
+    | DidGetStepCount Decode.Value
+    | GrantAccess
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
-            ( model + 1, Cmd.none )
+        DidRequestAccess value ->
+            let
+                result =
+                    Decode.decodeValue (Decode.maybe (Decode.field "error" Decode.string)) value
+            in
+                case result of
+                    Ok value ->
+                        case value of
+                            Just error ->
+                                ( Failure (HealthDataUnavailable error), Cmd.none )
 
-        Decrement ->
-            ( model - 1, Cmd.none )
+                            Nothing ->
+                                ( model, Cmd.none )
+
+                    Err error ->
+                        ( model, Cmd.none )
+
+        DidGetStepCount value ->
+            let
+                decoder =
+                    Decode.map2 Response
+                        (Decode.maybe (Decode.field "error" Decode.string))
+                        (Decode.maybe (Decode.field "value" Decode.int))
+
+                result =
+                    Decode.decodeValue decoder value
+            in
+                case result of
+                    Ok response ->
+                        case response.error of
+                            Just error ->
+                                ( Failure (HealthDataNotFound error), Cmd.none )
+
+                            Nothing ->
+                                case response.value of
+                                    Just value ->
+                                        ( Success (StepCount value), Cmd.none )
+
+                                    Nothing ->
+                                        ( model, Cmd.none )
+
+                    Err error ->
+                        ( model, Cmd.none )
+
+        GrantAccess ->
+            ( model, grantAccess () )
 
 
 
@@ -69,7 +133,7 @@ view count =
                     , Style.marginBottom 30
                     ]
                 ]
-                [ Ui.string ("Counter: " ++ toString count)
+                [ Ui.string ("Step Count: " ++ toString count)
                 ]
             , Elements.view
                 [ Ui.style
@@ -78,8 +142,7 @@ view count =
                     , Style.justifyContent "space-between"
                     ]
                 ]
-                [ button Decrement "#d33" "-"
-                , button Increment "#3d3" "+"
+                [ button GrantAccess "#5d5" "perm"
                 ]
             ]
 
@@ -107,14 +170,42 @@ button msg color content =
 
 
 
+-- PORT
+
+
+port requestAccess : () -> Cmd msg
+
+
+port didRequestAccess : (Decode.Value -> msg) -> Sub msg
+
+
+port grantAccess : () -> Cmd msg
+
+
+port didGetStepCount : (Decode.Value -> msg) -> Sub msg
+
+
+
+-- SUBSCRIPTION
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ didRequestAccess DidRequestAccess
+        , didGetStepCount DidGetStepCount
+        ]
+
+
+
 -- PROGRAM
 
 
 main : Program Never Model Msg
 main =
     Ui.program
-        { init = ( model, Cmd.none )
+        { init = ( model, requestAccess () )
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }

@@ -1,5 +1,5 @@
 {
-  "name": "Counter",
+  "name": "FitTreat",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,8 +9,11 @@
     "watch": "chokidar '**/*.elm' 'app/**/*.js' -c 'npm run compile'"
   },
   "dependencies": {
+    "lodash": "^4.17.4",
     "react": "16.0.0-alpha.6",
-    "react-native": "0.43.4"
+    "react-native": "0.43.4",
+    "react-native-exit-app": "^1.0.0",
+    "rn-apple-healthkit": "^0.6.1"
   },
   "jest": {
     "preset": "jest-react-native"

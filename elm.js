@@ -6836,48 +6836,111 @@ var _ohanhi$elm_native_ui$Main$button = F3(
 				_1: {ctor: '[]'}
 			});
 	});
-var _ohanhi$elm_native_ui$Main$model = 0;
-var _ohanhi$elm_native_ui$Main$initHealthKit = _elm_lang$core$Native_Platform.outgoingPort(
-	'initHealthKit',
+var _ohanhi$elm_native_ui$Main$requestAccess = _elm_lang$core$Native_Platform.outgoingPort(
+	'requestAccess',
 	function (v) {
 		return null;
 	});
-var _ohanhi$elm_native_ui$Main$getActiveEnergyBurned = _elm_lang$core$Native_Platform.outgoingPort(
-	'getActiveEnergyBurned',
+var _ohanhi$elm_native_ui$Main$didRequestAccess = _elm_lang$core$Native_Platform.incomingPort('didRequestAccess', _elm_lang$core$Json_Decode$value);
+var _ohanhi$elm_native_ui$Main$grantAccess = _elm_lang$core$Native_Platform.outgoingPort(
+	'grantAccess',
 	function (v) {
 		return null;
 	});
+var _ohanhi$elm_native_ui$Main$didGetStepCount = _elm_lang$core$Native_Platform.incomingPort('didGetStepCount', _elm_lang$core$Json_Decode$value);
+var _ohanhi$elm_native_ui$Main$Response = F2(
+	function (a, b) {
+		return {error: a, value: b};
+	});
+var _ohanhi$elm_native_ui$Main$HealthDataNotFound = function (a) {
+	return {ctor: 'HealthDataNotFound', _0: a};
+};
+var _ohanhi$elm_native_ui$Main$HealthDataUnavailable = function (a) {
+	return {ctor: 'HealthDataUnavailable', _0: a};
+};
+var _ohanhi$elm_native_ui$Main$StepCount = function (a) {
+	return {ctor: 'StepCount', _0: a};
+};
+var _ohanhi$elm_native_ui$Main$Success = function (a) {
+	return {ctor: 'Success', _0: a};
+};
+var _ohanhi$elm_native_ui$Main$Failure = function (a) {
+	return {ctor: 'Failure', _0: a};
+};
 var _ohanhi$elm_native_ui$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
-			case 'InitHealthKit':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _ohanhi$elm_native_ui$Main$initHealthKit(
-						{ctor: '_Tuple0'})
-				};
-			case 'GetActiveEnergyBurned':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _ohanhi$elm_native_ui$Main$getActiveEnergyBurned(
-						{ctor: '_Tuple0'})
-				};
+			case 'DidRequestAccess':
+				var result = A2(
+					_elm_lang$core$Json_Decode$decodeValue,
+					_elm_lang$core$Json_Decode$maybe(
+						A2(_elm_lang$core$Json_Decode$field, 'error', _elm_lang$core$Json_Decode$string)),
+					_p0._0);
+				var _p1 = result;
+				if (_p1.ctor === 'Ok') {
+					var _p2 = _p1._0;
+					if (_p2.ctor === 'Just') {
+						return {
+							ctor: '_Tuple2',
+							_0: _ohanhi$elm_native_ui$Main$Failure(
+								_ohanhi$elm_native_ui$Main$HealthDataUnavailable(_p2._0)),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					} else {
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					}
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'DidGetStepCount':
+				var decoder = A3(
+					_elm_lang$core$Json_Decode$map2,
+					_ohanhi$elm_native_ui$Main$Response,
+					_elm_lang$core$Json_Decode$maybe(
+						A2(_elm_lang$core$Json_Decode$field, 'error', _elm_lang$core$Json_Decode$string)),
+					_elm_lang$core$Json_Decode$maybe(
+						A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$int)));
+				var result = A2(_elm_lang$core$Json_Decode$decodeValue, decoder, _p0._0);
+				var _p3 = result;
+				if (_p3.ctor === 'Ok') {
+					var _p6 = _p3._0;
+					var _p4 = _p6.error;
+					if (_p4.ctor === 'Just') {
+						return {
+							ctor: '_Tuple2',
+							_0: _ohanhi$elm_native_ui$Main$Failure(
+								_ohanhi$elm_native_ui$Main$HealthDataNotFound(_p4._0)),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					} else {
+						var _p5 = _p6.value;
+						if (_p5.ctor === 'Just') {
+							return {
+								ctor: '_Tuple2',
+								_0: _ohanhi$elm_native_ui$Main$Success(
+									_ohanhi$elm_native_ui$Main$StepCount(_p5._0)),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						} else {
+							return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+						}
+					}
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
 			default:
-				return {ctor: '_Tuple2', _0: _p0._0, _1: _elm_lang$core$Platform_Cmd$none};
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _ohanhi$elm_native_ui$Main$grantAccess(
+						{ctor: '_Tuple0'})
+				};
 		}
 	});
-var _ohanhi$elm_native_ui$Main$activeEnergyBurned = _elm_lang$core$Native_Platform.incomingPort('activeEnergyBurned', _elm_lang$core$Json_Decode$int);
-var _ohanhi$elm_native_ui$Main$ActiveEnergyBurned = function (a) {
-	return {ctor: 'ActiveEnergyBurned', _0: a};
-};
-var _ohanhi$elm_native_ui$Main$subscriptions = function (model) {
-	return _ohanhi$elm_native_ui$Main$activeEnergyBurned(_ohanhi$elm_native_ui$Main$ActiveEnergyBurned);
-};
-var _ohanhi$elm_native_ui$Main$GetActiveEnergyBurned = {ctor: 'GetActiveEnergyBurned'};
-var _ohanhi$elm_native_ui$Main$InitHealthKit = {ctor: 'InitHealthKit'};
+var _ohanhi$elm_native_ui$Main$NotAsked = {ctor: 'NotAsked'};
+var _ohanhi$elm_native_ui$Main$model = _ohanhi$elm_native_ui$Main$NotAsked;
+var _ohanhi$elm_native_ui$Main$GrantAccess = {ctor: 'GrantAccess'};
 var _ohanhi$elm_native_ui$Main$view = function (count) {
 	var imageSource = {
 		uri: 'https://raw.githubusercontent.com/futurice/spiceprogram/master/assets/img/logo/chilicorn_no_text-128.png',
@@ -6949,7 +7012,7 @@ var _ohanhi$elm_native_ui$Main$view = function (count) {
 						_0: _ohanhi$elm_native_ui$NativeUi$string(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								'Counter: ',
+								'Step Count: ',
 								_elm_lang$core$Basics$toString(count))),
 						_1: {ctor: '[]'}
 					}),
@@ -6977,15 +7040,29 @@ var _ohanhi$elm_native_ui$Main$view = function (count) {
 						},
 						{
 							ctor: '::',
-							_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$InitHealthKit, '#33d', '?'),
-							_1: {
-								ctor: '::',
-								_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$GetActiveEnergyBurned, '#d5d', '/'),
-								_1: {ctor: '[]'}
-							}
+							_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$GrantAccess, '#5d5', 'perm'),
+							_1: {ctor: '[]'}
 						}),
 					_1: {ctor: '[]'}
 				}
+			}
+		});
+};
+var _ohanhi$elm_native_ui$Main$DidGetStepCount = function (a) {
+	return {ctor: 'DidGetStepCount', _0: a};
+};
+var _ohanhi$elm_native_ui$Main$DidRequestAccess = function (a) {
+	return {ctor: 'DidRequestAccess', _0: a};
+};
+var _ohanhi$elm_native_ui$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _ohanhi$elm_native_ui$Main$didRequestAccess(_ohanhi$elm_native_ui$Main$DidRequestAccess),
+			_1: {
+				ctor: '::',
+				_0: _ohanhi$elm_native_ui$Main$didGetStepCount(_ohanhi$elm_native_ui$Main$DidGetStepCount),
+				_1: {ctor: '[]'}
 			}
 		});
 };
@@ -6994,7 +7071,7 @@ var _ohanhi$elm_native_ui$Main$main = _ohanhi$elm_native_ui$NativeUi$program(
 		init: {
 			ctor: '_Tuple2',
 			_0: _ohanhi$elm_native_ui$Main$model,
-			_1: _ohanhi$elm_native_ui$Main$initHealthKit(
+			_1: _ohanhi$elm_native_ui$Main$requestAccess(
 				{ctor: '_Tuple0'})
 		},
 		view: _ohanhi$elm_native_ui$Main$view,
