@@ -6787,33 +6787,20 @@ var _ohanhi$elm_native_ui$Main$button = F3(
 										_0: _ohanhi$elm_native_ui$NativeUi_Style$paddingBottom(5),
 										_1: {
 											ctor: '::',
-											_0: _ohanhi$elm_native_ui$NativeUi_Style$width(30),
+											_0: _ohanhi$elm_native_ui$NativeUi_Style$fontWeight('bold'),
 											_1: {
 												ctor: '::',
-												_0: _ohanhi$elm_native_ui$NativeUi_Style$fontWeight('bold'),
+												_0: _ohanhi$elm_native_ui$NativeUi_Style$shadowColor('#000'),
 												_1: {
 													ctor: '::',
-													_0: _ohanhi$elm_native_ui$NativeUi_Style$shadowColor('#000'),
+													_0: _ohanhi$elm_native_ui$NativeUi_Style$shadowOpacity(0.25),
 													_1: {
 														ctor: '::',
-														_0: _ohanhi$elm_native_ui$NativeUi_Style$shadowOpacity(0.25),
+														_0: A2(_ohanhi$elm_native_ui$NativeUi_Style$shadowOffset, 1, 1),
 														_1: {
 															ctor: '::',
-															_0: A2(_ohanhi$elm_native_ui$NativeUi_Style$shadowOffset, 1, 1),
-															_1: {
-																ctor: '::',
-																_0: _ohanhi$elm_native_ui$NativeUi_Style$shadowRadius(5),
-																_1: {
-																	ctor: '::',
-																	_0: _ohanhi$elm_native_ui$NativeUi_Style$transform(
-																		_elm_lang$core$Native_Utils.update(
-																			_ohanhi$elm_native_ui$NativeUi_Style$defaultTransform,
-																			{
-																				rotate: _elm_lang$core$Maybe$Just('10deg')
-																			})),
-																	_1: {ctor: '[]'}
-																}
-															}
+															_0: _ohanhi$elm_native_ui$NativeUi_Style$shadowRadius(5),
+															_1: {ctor: '[]'}
 														}
 													}
 												}
@@ -6841,17 +6828,14 @@ var _ohanhi$elm_native_ui$Main$requestAccess = _elm_lang$core$Native_Platform.ou
 	function (v) {
 		return null;
 	});
-var _ohanhi$elm_native_ui$Main$didRequestAccess = _elm_lang$core$Native_Platform.incomingPort('didRequestAccess', _elm_lang$core$Json_Decode$value);
+var _ohanhi$elm_native_ui$Main$didRequestAccessWithError = _elm_lang$core$Native_Platform.incomingPort('didRequestAccessWithError', _elm_lang$core$Json_Decode$string);
 var _ohanhi$elm_native_ui$Main$grantAccess = _elm_lang$core$Native_Platform.outgoingPort(
 	'grantAccess',
 	function (v) {
 		return null;
 	});
-var _ohanhi$elm_native_ui$Main$didGetStepCount = _elm_lang$core$Native_Platform.incomingPort('didGetStepCount', _elm_lang$core$Json_Decode$value);
-var _ohanhi$elm_native_ui$Main$Response = F2(
-	function (a, b) {
-		return {error: a, value: b};
-	});
+var _ohanhi$elm_native_ui$Main$didGetStepCount = _elm_lang$core$Native_Platform.incomingPort('didGetStepCount', _elm_lang$core$Json_Decode$int);
+var _ohanhi$elm_native_ui$Main$didGetStepCountWithError = _elm_lang$core$Native_Platform.incomingPort('didGetStepCountWithError', _elm_lang$core$Json_Decode$string);
 var _ohanhi$elm_native_ui$Main$HealthDataNotFound = function (a) {
 	return {ctor: 'HealthDataNotFound', _0: a};
 };
@@ -6871,64 +6855,27 @@ var _ohanhi$elm_native_ui$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
-			case 'DidRequestAccess':
-				var result = A2(
-					_elm_lang$core$Json_Decode$decodeValue,
-					_elm_lang$core$Json_Decode$maybe(
-						A2(_elm_lang$core$Json_Decode$field, 'error', _elm_lang$core$Json_Decode$string)),
-					_p0._0);
-				var _p1 = result;
-				if (_p1.ctor === 'Ok') {
-					var _p2 = _p1._0;
-					if (_p2.ctor === 'Just') {
-						return {
-							ctor: '_Tuple2',
-							_0: _ohanhi$elm_native_ui$Main$Failure(
-								_ohanhi$elm_native_ui$Main$HealthDataUnavailable(_p2._0)),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					} else {
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					}
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
+			case 'DidRequestAccessWithError':
+				return {
+					ctor: '_Tuple2',
+					_0: _ohanhi$elm_native_ui$Main$Failure(
+						_ohanhi$elm_native_ui$Main$HealthDataUnavailable(_p0._0)),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'DidGetStepCount':
-				var decoder = A3(
-					_elm_lang$core$Json_Decode$map2,
-					_ohanhi$elm_native_ui$Main$Response,
-					_elm_lang$core$Json_Decode$maybe(
-						A2(_elm_lang$core$Json_Decode$field, 'error', _elm_lang$core$Json_Decode$string)),
-					_elm_lang$core$Json_Decode$maybe(
-						A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$int)));
-				var result = A2(_elm_lang$core$Json_Decode$decodeValue, decoder, _p0._0);
-				var _p3 = result;
-				if (_p3.ctor === 'Ok') {
-					var _p6 = _p3._0;
-					var _p4 = _p6.error;
-					if (_p4.ctor === 'Just') {
-						return {
-							ctor: '_Tuple2',
-							_0: _ohanhi$elm_native_ui$Main$Failure(
-								_ohanhi$elm_native_ui$Main$HealthDataNotFound(_p4._0)),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					} else {
-						var _p5 = _p6.value;
-						if (_p5.ctor === 'Just') {
-							return {
-								ctor: '_Tuple2',
-								_0: _ohanhi$elm_native_ui$Main$Success(
-									_ohanhi$elm_native_ui$Main$StepCount(_p5._0)),
-								_1: _elm_lang$core$Platform_Cmd$none
-							};
-						} else {
-							return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-						}
-					}
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
+				return {
+					ctor: '_Tuple2',
+					_0: _ohanhi$elm_native_ui$Main$Success(
+						_ohanhi$elm_native_ui$Main$StepCount(_p0._0)),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'DidGetStepCountWithError':
+				return {
+					ctor: '_Tuple2',
+					_0: _ohanhi$elm_native_ui$Main$Failure(
+						_ohanhi$elm_native_ui$Main$HealthDataNotFound(_p0._0)),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			default:
 				return {
 					ctor: '_Tuple2',
@@ -6938,10 +6885,81 @@ var _ohanhi$elm_native_ui$Main$update = F2(
 				};
 		}
 	});
-var _ohanhi$elm_native_ui$Main$NotAsked = {ctor: 'NotAsked'};
-var _ohanhi$elm_native_ui$Main$model = _ohanhi$elm_native_ui$Main$NotAsked;
+var _ohanhi$elm_native_ui$Main$Loading = {ctor: 'Loading'};
+var _ohanhi$elm_native_ui$Main$model = _ohanhi$elm_native_ui$Main$Loading;
 var _ohanhi$elm_native_ui$Main$GrantAccess = {ctor: 'GrantAccess'};
-var _ohanhi$elm_native_ui$Main$view = function (count) {
+var _ohanhi$elm_native_ui$Main$viewStepCount = function (model) {
+	var _p1 = model;
+	switch (_p1.ctor) {
+		case 'Loading':
+			return A2(
+				_ohanhi$elm_native_ui$NativeUi_Elements$text,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _ohanhi$elm_native_ui$NativeUi$string('Loading'),
+					_1: {ctor: '[]'}
+				});
+		case 'Failure':
+			if (_p1._0.ctor === 'HealthDataUnavailable') {
+				return A2(
+					_ohanhi$elm_native_ui$NativeUi_Elements$text,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _ohanhi$elm_native_ui$NativeUi$string('Health Data is unavailable on your device'),
+						_1: {ctor: '[]'}
+					});
+			} else {
+				return A2(
+					_ohanhi$elm_native_ui$NativeUi_Elements$view,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_ohanhi$elm_native_ui$NativeUi_Elements$text,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _ohanhi$elm_native_ui$NativeUi$string('You have not taken any walk today'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$GrantAccess, '#5d5', ', or you deny access to Health Data'),
+							_1: {ctor: '[]'}
+						}
+					});
+			}
+		default:
+			return A2(
+				_ohanhi$elm_native_ui$NativeUi_Elements$text,
+				{
+					ctor: '::',
+					_0: _ohanhi$elm_native_ui$NativeUi$style(
+						{
+							ctor: '::',
+							_0: _ohanhi$elm_native_ui$NativeUi_Style$textAlign('center'),
+							_1: {
+								ctor: '::',
+								_0: _ohanhi$elm_native_ui$NativeUi_Style$marginBottom(30),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _ohanhi$elm_native_ui$NativeUi$string(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'Step Count: ',
+							_elm_lang$core$Basics$toString(_p1._0._0))),
+					_1: {ctor: '[]'}
+				});
+	}
+};
+var _ohanhi$elm_native_ui$Main$view = function (model) {
 	var imageSource = {
 		uri: 'https://raw.githubusercontent.com/futurice/spiceprogram/master/assets/img/logo/chilicorn_no_text-128.png',
 		cache: _elm_lang$core$Maybe$Just(_ohanhi$elm_native_ui$NativeUi_Image$ForceCache)
@@ -6992,16 +7010,16 @@ var _ohanhi$elm_native_ui$Main$view = function (count) {
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_ohanhi$elm_native_ui$NativeUi_Elements$text,
+					_ohanhi$elm_native_ui$NativeUi_Elements$view,
 					{
 						ctor: '::',
 						_0: _ohanhi$elm_native_ui$NativeUi$style(
 							{
 								ctor: '::',
-								_0: _ohanhi$elm_native_ui$NativeUi_Style$textAlign('center'),
+								_0: _ohanhi$elm_native_ui$NativeUi_Style$flexDirection('row'),
 								_1: {
 									ctor: '::',
-									_0: _ohanhi$elm_native_ui$NativeUi_Style$marginBottom(30),
+									_0: _ohanhi$elm_native_ui$NativeUi_Style$justifyContent('space-between'),
 									_1: {ctor: '[]'}
 								}
 							}),
@@ -7009,60 +7027,35 @@ var _ohanhi$elm_native_ui$Main$view = function (count) {
 					},
 					{
 						ctor: '::',
-						_0: _ohanhi$elm_native_ui$NativeUi$string(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'Step Count: ',
-								_elm_lang$core$Basics$toString(count))),
+						_0: _ohanhi$elm_native_ui$Main$viewStepCount(model),
 						_1: {ctor: '[]'}
 					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_ohanhi$elm_native_ui$NativeUi_Elements$view,
-						{
-							ctor: '::',
-							_0: _ohanhi$elm_native_ui$NativeUi$style(
-								{
-									ctor: '::',
-									_0: _ohanhi$elm_native_ui$NativeUi_Style$width(80),
-									_1: {
-										ctor: '::',
-										_0: _ohanhi$elm_native_ui$NativeUi_Style$flexDirection('row'),
-										_1: {
-											ctor: '::',
-											_0: _ohanhi$elm_native_ui$NativeUi_Style$justifyContent('space-between'),
-											_1: {ctor: '[]'}
-										}
-									}
-								}),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: A3(_ohanhi$elm_native_ui$Main$button, _ohanhi$elm_native_ui$Main$GrantAccess, '#5d5', 'perm'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			}
 		});
+};
+var _ohanhi$elm_native_ui$Main$DidGetStepCountWithError = function (a) {
+	return {ctor: 'DidGetStepCountWithError', _0: a};
 };
 var _ohanhi$elm_native_ui$Main$DidGetStepCount = function (a) {
 	return {ctor: 'DidGetStepCount', _0: a};
 };
-var _ohanhi$elm_native_ui$Main$DidRequestAccess = function (a) {
-	return {ctor: 'DidRequestAccess', _0: a};
+var _ohanhi$elm_native_ui$Main$DidRequestAccessWithError = function (a) {
+	return {ctor: 'DidRequestAccessWithError', _0: a};
 };
 var _ohanhi$elm_native_ui$Main$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
-			_0: _ohanhi$elm_native_ui$Main$didRequestAccess(_ohanhi$elm_native_ui$Main$DidRequestAccess),
+			_0: _ohanhi$elm_native_ui$Main$didRequestAccessWithError(_ohanhi$elm_native_ui$Main$DidRequestAccessWithError),
 			_1: {
 				ctor: '::',
 				_0: _ohanhi$elm_native_ui$Main$didGetStepCount(_ohanhi$elm_native_ui$Main$DidGetStepCount),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _ohanhi$elm_native_ui$Main$didGetStepCountWithError(_ohanhi$elm_native_ui$Main$DidGetStepCountWithError),
+					_1: {ctor: '[]'}
+				}
 			}
 		});
 };

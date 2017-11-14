@@ -13,11 +13,7 @@ export default function(elmApp) {
 
   AppleHealthKit.initHealthKit(options: Object, (err: Object, results: Object) => {
     if (err) {
-      alert(err.message);
-
-      elmApp.ports.didRequestAccessToHealthData.send({
-        error: err.message
-      });
+      elmApp.ports.didRequestAccessWithError.send(err.message);
 
       return;
     }

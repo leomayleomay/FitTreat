@@ -16,18 +16,12 @@ type Error
     | HealthDataNotFound String
 
 
-type alias Response a =
-    { error : Maybe String
-    , value : a
-    }
-
-
 type StepCount
     = StepCount Int
 
 
 type HealthData
-    = NotAsked
+    = Loading
     | Failure Error
     | Success StepCount
 
@@ -38,7 +32,7 @@ type alias Model =
 
 model : Model
 model =
-    NotAsked
+    Loading
 
 
 
@@ -46,57 +40,23 @@ model =
 
 
 type Msg
-    = DidRequestAccess Decode.Value
-    | DidGetStepCount Decode.Value
+    = DidRequestAccessWithError String
+    | DidGetStepCount Int
+    | DidGetStepCountWithError String
     | GrantAccess
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        DidRequestAccess value ->
-            let
-                result =
-                    Decode.decodeValue (Decode.maybe (Decode.field "error" Decode.string)) value
-            in
-                case result of
-                    Ok value ->
-                        case value of
-                            Just error ->
-                                ( Failure (HealthDataUnavailable error), Cmd.none )
+        DidRequestAccessWithError error ->
+            ( Failure (HealthDataUnavailable error), Cmd.none )
 
-                            Nothing ->
-                                ( model, Cmd.none )
+        DidGetStepCount stepCount ->
+            ( Success (StepCount stepCount), Cmd.none )
 
-                    Err error ->
-                        ( model, Cmd.none )
-
-        DidGetStepCount value ->
-            let
-                decoder =
-                    Decode.map2 Response
-                        (Decode.maybe (Decode.field "error" Decode.string))
-                        (Decode.maybe (Decode.field "value" Decode.int))
-
-                result =
-                    Decode.decodeValue decoder value
-            in
-                case result of
-                    Ok response ->
-                        case response.error of
-                            Just error ->
-                                ( Failure (HealthDataNotFound error), Cmd.none )
-
-                            Nothing ->
-                                case response.value of
-                                    Just value ->
-                                        ( Success (StepCount value), Cmd.none )
-
-                                    Nothing ->
-                                        ( model, Cmd.none )
-
-                    Err error ->
-                        ( model, Cmd.none )
+        DidGetStepCountWithError error ->
+            ( Failure (HealthDataNotFound error), Cmd.none )
 
         GrantAccess ->
             ( model, grantAccess () )
@@ -107,7 +67,7 @@ update msg model =
 
 
 view : Model -> Node Msg
-view count =
+view model =
     let
         imageSource =
             { uri = "https://raw.githubusercontent.com/futurice/spiceprogram/master/assets/img/logo/chilicorn_no_text-128.png"
@@ -127,24 +87,48 @@ view count =
                 , source imageSource
                 ]
                 []
-            , text
+            , Elements.view
+                [ Ui.style
+                    [ Style.flexDirection "row"
+                    , Style.justifyContent "space-between"
+                    ]
+                ]
+                [ viewStepCount model
+                ]
+            ]
+
+
+viewStepCount : Model -> Node Msg
+viewStepCount model =
+    case model of
+        Loading ->
+            text
+                []
+                [ Ui.string "Loading"
+                ]
+
+        Failure (HealthDataUnavailable error) ->
+            text
+                []
+                [ Ui.string "Health Data is unavailable on your device"
+                ]
+
+        Failure (HealthDataNotFound error) ->
+            Elements.view
+                []
+                [ text [] [ Ui.string "You have not taken any walk today" ]
+                , button GrantAccess "#5d5" ", or you deny access to Health Data"
+                ]
+
+        Success (StepCount stepCount) ->
+            text
                 [ Ui.style
                     [ Style.textAlign "center"
                     , Style.marginBottom 30
                     ]
                 ]
-                [ Ui.string ("Step Count: " ++ toString count)
+                [ Ui.string ("Step Count: " ++ toString stepCount)
                 ]
-            , Elements.view
-                [ Ui.style
-                    [ Style.width 80
-                    , Style.flexDirection "row"
-                    , Style.justifyContent "space-between"
-                    ]
-                ]
-                [ button GrantAccess "#5d5" "perm"
-                ]
-            ]
 
 
 button : Msg -> String -> String -> Node Msg
@@ -156,13 +140,11 @@ button msg color content =
             , Style.backgroundColor color
             , Style.paddingTop 5
             , Style.paddingBottom 5
-            , Style.width 30
             , Style.fontWeight "bold"
             , Style.shadowColor "#000"
             , Style.shadowOpacity 0.25
             , Style.shadowOffset 1 1
             , Style.shadowRadius 5
-            , Style.transform { defaultTransform | rotate = Just "10deg" }
             ]
         , onPress msg
         ]
@@ -176,13 +158,16 @@ button msg color content =
 port requestAccess : () -> Cmd msg
 
 
-port didRequestAccess : (Decode.Value -> msg) -> Sub msg
+port didRequestAccessWithError : (String -> msg) -> Sub msg
 
 
 port grantAccess : () -> Cmd msg
 
 
-port didGetStepCount : (Decode.Value -> msg) -> Sub msg
+port didGetStepCount : (Int -> msg) -> Sub msg
+
+
+port didGetStepCountWithError : (String -> msg) -> Sub msg
 
 
 
@@ -192,8 +177,9 @@ port didGetStepCount : (Decode.Value -> msg) -> Sub msg
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ didRequestAccess DidRequestAccess
+        [ didRequestAccessWithError DidRequestAccessWithError
         , didGetStepCount DidGetStepCount
+        , didGetStepCountWithError DidGetStepCountWithError
         ]
 
 

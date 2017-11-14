@@ -10,17 +10,11 @@ export default function(elmApp) {
 
   AppleHealthKit.getStepCount(options: Object, (err: string, results: Object) => {
     if (err) {
-      alert(err.message);
-
-      elmApp.ports.didGetStepCount.send({
-        error: err.message
-      });
+      elmApp.ports.didGetStepCountWithError.send(err.message);
 
       return;
     }
 
-    elmApp.ports.didGetStepCount.send({
-      value: results.value
-    });
+    elmApp.ports.didGetStepCount.send(results.value);
   });
 }
